@@ -9,7 +9,6 @@ const router = Router();
 const allowDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 router.post('/add-original-period',[
-    body("id").isString().notEmpty().withMessage("Id is required"),
     body("periodName").isString().notEmpty().withMessage("Period Name is required"),
     body("teacherName").isString().notEmpty().withMessage("Teacher Name is required"),
     body("roomNo").isString().notEmpty().withMessage("Room No is required"),

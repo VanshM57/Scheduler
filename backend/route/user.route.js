@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 
-import { loginUser,registerUser,logoutUser } from "../controllers/user.controller.js";
+import { loginUser,registerUser,logoutUser,getUser } from "../controllers/user.controller.js";
 const router = Router();
 import { body } from "express-validator";
 router.post('/register',[
@@ -17,5 +17,8 @@ router.post('/login',[
 ], loginUser)
 
 router.get('/logout',logoutUser)
+
+router.get('/getUser',getUser)
+
 
 export default router;

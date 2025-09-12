@@ -15,7 +15,10 @@ app.use(express.json({limit: "16kb"}))
 app.use(express.urlencoded({extended: true, limit: "16kb"}))
 app.use(express.static("public"))
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",  // your frontend origin
+  credentials: true,                // allow cookies
+}));
 
 const port = 3000;
 app.use("/api/v1/user",userRouter);

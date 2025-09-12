@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js";
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import BlacklistTokenModel from "../models/blacklistToken.model.js";
+import jwt from 'jsonwebtoken'
 
 //to generate access Token
 const generateToken = async (userId)=>{
@@ -149,4 +150,33 @@ const logoutUser = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, {},"User logged out"))
 })
 
-export {loginUser, registerUser, logoutUser}
+const getUser = asyncHandler(async(req,res)=>{
+    const token = await req.cookies?.token || req.headers.authorization?.split(' ')[1];
+    if(!token){
+        throw new ApiError(401,"Not authenticated. Please login again")
+    }
+
+    //check token is blacklisted or not
+    const isBlacklisted = await BlacklistTokenModel.findOne({ token });
+    if (isBlacklisted) {
+        throw new ApiError(401, "Token is blacklisted. Please login again.");
+    }
+
+    //decode the token
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    //find the user
+    const user = await User.findById(decodedToken?._id).select("-password")
+
+    //check user present or not
+    if(!user){
+        throw new ApiError(401,"User not exist, Please login again.")
+    }
+
+    //send the user
+    return res
+    .status(200)
+    .json(new ApiResponse(200,user,"User fetched successfully"));
+})
+
+export {loginUser, registerUser, logoutUser,getUser}

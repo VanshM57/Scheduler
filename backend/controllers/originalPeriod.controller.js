@@ -10,8 +10,8 @@ const addPeriod = asyncHandler(async(req,res)=>{
     if(!errors.isEmpty()){
         return res.status(400).json({errors: errors.array()})
     }
-    const {id, periodName, teacherName, roomNo,startTime, endTime, branch, batch, sem, day} = req.body;
-    if(!id || !periodName || !teacherName || !roomNo || !startTime || !endTime || !branch || !sem || !day){
+    const {periodName, teacherName, roomNo,startTime, endTime, branch, batch, sem, day} = req.body;
+    if(!periodName || !teacherName || !roomNo || !startTime || !endTime || !branch || !sem || !day){
         throw new ApiError(400, "All fields are required");
     }
     const period = await OriginalPeriod.create({

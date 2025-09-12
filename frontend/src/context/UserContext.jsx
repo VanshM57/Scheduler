@@ -1,27 +1,55 @@
 import React, { createContext, useState, useEffect } from "react";
+import axios from 'axios'
+import { toast } from "react-toastify";
 
-export const UserDataContext = createContext();
+const UserDataContext = createContext();
 
 function UserContext({children}){
      // Retrieve user data from localStorage when the app loads
-    const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("user");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     // Save user data to localStorage whenever it changes
-    useEffect(() => {
-        if (user && Object.keys(user).length !== 0) {
-            localStorage.setItem("user", JSON.stringify(user));
-        } else {
-            localStorage.removeItem("user"); // Remove if user logs out
+    const fetchUser = async () => {
+        try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            setUser(null);
+            setLoading(false);
+            return;
         }
-    }, [user]);
+
+        const response = await axios.get(
+            `${import.meta.env.VITE_BASE_URL}/user/getUser`,
+            {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            }
+        );
+
+        if (response.status === 200) {
+            setUser(response.data.data);
+            console.log(user) // ✅ updated user
+        }
+        } catch (error) {
+            toast.info('Login Please')
+            console.error("Error fetching user:", error.response?.data || error.message);
+            setUser(null); // fallback
+        } finally{
+            setLoading(false);
+        }
+    };
+
+  // Run on mount
+  useEffect(() => {
+    fetchUser();
+  }, []);
     
     return (
-            <UserDataContext.Provider value={{ user, setUser }}>
+            <UserDataContext.Provider value={{ user, setUser, loading }}>
                             {children}
             </UserDataContext.Provider>
     )
 }
-export default UserContext
+export { UserContext as default, UserDataContext };
