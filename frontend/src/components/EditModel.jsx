@@ -3,9 +3,9 @@ import Button from "./ui/Button";
 
 export default function EditModal({ editForm, setEditForm, handleSave, handleCancel }) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
-      <div className="relative w-full max-w-md p-6 rounded-2xl shadow-xl border border-gray-700 backdrop-blur-md bg-[#111] transition-all duration-500 hover:border-blue-500 hover:shadow-blue-500/50">
-        <h2 className="text-xl font-semibold text-white text-center">Edit Period</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4 z-50">
+      <div className="relative w-full max-w-md p-4 sm:p-6 rounded-2xl shadow-xl border border-gray-700 backdrop-blur-md bg-[#111] transition-all duration-500 hover:border-blue-500 hover:shadow-blue-500/50 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-semibold text-white text-center">Edit Period</h2>
 
         <input
           type="text"
@@ -15,16 +15,16 @@ export default function EditModal({ editForm, setEditForm, handleSave, handleCan
           onChange={(e) => setEditForm({ ...editForm, periodName: e.target.value })}
         />
 
-        <div className="flex gap-2 mt-2">
+        <div className="flex flex-col sm:flex-row gap-2 mt-2">
           <input
             type="time"
-            className="w-1/2 p-3 rounded-lg bg-white/20 text-white border border-transparent focus:border-blue-500 transition-all duration-300 focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-1/2 p-2.5 sm:p-3 text-sm sm:text-base rounded-lg bg-white/20 text-white border border-transparent focus:border-blue-500 transition-all duration-300 focus:ring-2 focus:ring-blue-500"
             value={editForm.startTime}
             onChange={(e) => setEditForm({ ...editForm, startTime: e.target.value })}
           />
           <input
             type="time"
-            className="w-1/2 p-3 rounded-lg bg-white/20 text-white border border-transparent focus:border-blue-500 transition-all duration-300 focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-1/2 p-2.5 sm:p-3 text-sm sm:text-base rounded-lg bg-white/20 text-white border border-transparent focus:border-blue-500 transition-all duration-300 focus:ring-2 focus:ring-blue-500"
             value={editForm.endTime}
             onChange={(e) => setEditForm({ ...editForm, endTime: e.target.value })}
           />

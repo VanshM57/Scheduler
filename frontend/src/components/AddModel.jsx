@@ -7,11 +7,11 @@ export default function AddModal({ addForm, setAddForm, handleSubmit, handleCanc
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-[#111] w-full max-w-md rounded-2xl border border-gray-700 shadow-2xl p-4">
-        <h2 className="text-xl font-bold text-white mb-3 text-center">Add New Period</h2>
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#111] w-full max-w-md rounded-2xl border border-gray-700 shadow-2xl p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 text-center">Add New Period</h2>
 
-        <form className="space-y-3 text-sm" onSubmit={handleSubmit}>
+        <form className="space-y-3 sm:space-y-4 text-sm" onSubmit={handleSubmit}>
           <div>
             <label className="block text-gray-300 mb-1">Period Name</label>
             <input
@@ -36,28 +36,28 @@ export default function AddModal({ addForm, setAddForm, handleSubmit, handleCanc
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-300 mb-1">Start Time</label>
+              <label className="block text-gray-300 mb-1 text-xs sm:text-sm">Start Time</label>
               <input
                 type="time"
                 name="startTime"
                 value={addForm.startTime}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-1.5 rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
+                className="w-full px-3 py-2 text-sm rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
               />
             </div>
 
             <div>
-              <label className="block text-gray-300 mb-1">End Time</label>
+              <label className="block text-gray-300 mb-1 text-xs sm:text-sm">End Time</label>
               <input
                 type="time"
                 name="endTime"
                 value={addForm.endTime}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-1.5 rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
+                className="w-full px-3 py-2 text-sm rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
               />
             </div>
           </div>
@@ -74,28 +74,28 @@ export default function AddModal({ addForm, setAddForm, handleSubmit, handleCanc
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-gray-300 mb-1">Branch</label>
+              <label className="block text-gray-300 mb-1 text-xs sm:text-sm">Branch</label>
               <input
                 type="text"
                 name="branch"
                 value={addForm.branch}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-1.5 rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
+                className="w-full px-3 py-2 text-sm rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
               />
             </div>
 
             <div>
-              <label className="block text-gray-300 mb-1">Batch</label>
+              <label className="block text-gray-300 mb-1 text-xs sm:text-sm">Batch</label>
               <input
                 type="text"
                 name="batch"
                 value={addForm.batch}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-1.5 rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
+                className="w-full px-3 py-2 text-sm rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"
               />
             </div>
           </div>
