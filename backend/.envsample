@@ -1,3 +1,5 @@
-ACCESS_TOKEN_SECRET
-ACCESS_TOKEN_EXPIRY
-DB_CONNECTION_STRING
+ACCESS_TOKEN_SECRET=your_jwt_secret_key_here
+DB_CONNECTION_STRING=your_mongodb_connection_string
+PORT=3000
+FRONTEND_URL=http://localhost:5173
+NODE_ENV=development

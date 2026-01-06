@@ -10,12 +10,24 @@ const addPeriod = asyncHandler(async(req,res)=>{
     if(!errors.isEmpty()){
         return res.status(400).json({errors: errors.array()})
     }
-    const {periodName, teacherName, roomNo,startTime, endTime, branch, batch, sem, day} = req.body;
+    const {periodName, teacherName, teacher, roomNo,startTime, endTime, branch, batch, sem, day} = req.body;
     if(!periodName || !teacherName || !roomNo || !startTime || !endTime || !branch || !sem || !day){
         throw new ApiError(400, "All fields are required");
     }
+    
+    // If teacher ID is provided, use it; otherwise, try to find teacher by name
+    let teacherId = teacher;
+    if(!teacherId && teacherName){
+        const { User } = await import('../models/user.model.js');
+        const teacherUser = await User.findOne({ name: teacherName.toLowerCase(), role: 'teacher' });
+        if(teacherUser){
+            teacherId = teacherUser._id;
+        }
+    }
+    
     const period = await OriginalPeriod.create({
         periodName: periodName,
+        teacher: teacherId || null,
         teacherName: teacherName,
         roomNo: roomNo,
         startTime: startTime,
@@ -47,12 +59,24 @@ const updateOriginalPeriod = asyncHandler(async(req,res)=>{
     if(!errors.isEmpty()){
         return res.status(400).json({errors: errors.array()})
     }
-    const {id, periodName, teacherName, roomNo,startTime, endTime, branch, batch, sem, day} = req.body;
+    const {id, periodName, teacherName, teacher, roomNo,startTime, endTime, branch, batch, sem, day} = req.body;
     if(!id || !periodName || !teacherName || !roomNo || !startTime || !endTime || !branch || !sem || !day){
         throw new ApiError(400, "All fields are required");
     }
+    
+    // If teacher ID is provided, use it; otherwise, try to find teacher by name
+    let teacherId = teacher;
+    if(!teacherId && teacherName){
+        const { User } = await import('../models/user.model.js');
+        const teacherUser = await User.findOne({ name: teacherName.toLowerCase(), role: 'teacher' });
+        if(teacherUser){
+            teacherId = teacherUser._id;
+        }
+    }
+    
     const updatePeriod = await OriginalPeriod.findByIdAndUpdate(id,{
         periodName: periodName,
+        teacher: teacherId || undefined,
         teacherName: teacherName,
         roomNo: roomNo,
         startTime: startTime,
@@ -80,7 +104,7 @@ const updateOriginalPeriod = asyncHandler(async(req,res)=>{
 const deleteOriginalPeriod = asyncHandler(async(req,res)=>{
     const { id } = req.body;
     if(!id){
-        return new ApiError(400, "Id is required");
+        throw new ApiError(400, "Id is required");
     }
     const deletePeriod = await OriginalPeriod.findByIdAndDelete(id);
     if(!deletePeriod){

@@ -1,12 +1,17 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const originalPeriodSchema = new mongoose.Schema({
+const originalPeriodSchema = new Schema({
     periodName: {
         type: String,
         required: true,
         lowercase: true,
         trim: true,
         index: true
+    },
+    teacher: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     teacherName: {
         type: String, 

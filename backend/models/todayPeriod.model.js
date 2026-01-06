@@ -8,6 +8,12 @@ const todayPeriodScheme = new Schema({
         trim: true,
         index: true
     },
+    teacher: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: false,
+        index: true
+    },
     teacherName: {
         type: String, 
         required: true,

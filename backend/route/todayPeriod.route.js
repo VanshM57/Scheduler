@@ -1,14 +1,16 @@
 import { Router } from "express";
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { cancelPeriod, updatePeriod, getTodayPeriod, addTodayPeriod } from "../controllers/todayPeriod.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWTStudent } from "../middlewares/studentAuth.middleware.js";
 
 const router = Router();
 
-router.post('/getPeriods',[
-    body("branch").isString().notEmpty().isLength({min:2},{max:3}).withMessage("Branch must be 2-3 characters long"),
-    body("sem").isInt({min:1, max:8}).withMessage("Semester is required"),
-],getTodayPeriod)
+router.get('/getPeriods', [
+    query("date").optional().isISO8601().toDate().withMessage("Date must be a valid ISO8601 date"),
+    query("branch").optional().isString().withMessage("Branch must be a string"),
+    query("sem").optional().isInt({min:1, max:8}).withMessage("Semester must be an integer between 1 and 8"),
+], verifyJWTStudent, getTodayPeriod)
 
 router.post('/updatePeriod',[
     body("periodName").isString().notEmpty().withMessage("Period Name is required"),

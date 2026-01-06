@@ -4,7 +4,8 @@ import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
 import BlacklistTokenModel from '../models/blacklistToken.model.js';
 
-export const verifyJWT = asyncHandler(async (req,_,next)=>{
+// Middleware that allows both students and teachers (for viewing data)
+export const verifyJWTStudent = asyncHandler(async (req,_,next)=>{
     try{
         const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ","");
         if(!token){
@@ -38,9 +39,6 @@ export const verifyJWT = asyncHandler(async (req,_,next)=>{
         if(!user){
             throw new ApiError(401,"Invalid access token")
         }
-        if(user.role === "student"){
-            throw new ApiError(403,"Access denied")
-        }
 
         req.user = user;
         next()
@@ -51,3 +49,4 @@ export const verifyJWT = asyncHandler(async (req,_,next)=>{
         throw new ApiError(401, err?.message || "Invalid access token");
     }
 })
+

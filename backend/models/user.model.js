@@ -15,7 +15,13 @@ const userSchema = new Schema({
         trim: true,
         lowercase: true,
         index: true,
-        unique: true
+        unique: true,
+        validate: {
+            validator: function(v) {
+                return v.endsWith('@rtu.ac.in');
+            },
+            message: 'Email must be from @rtu.ac.in domain'
+        }
     },
     password: {
         type: String,
@@ -23,7 +29,7 @@ const userSchema = new Schema({
     },
     rollno: {
         type: String,
-        required: true,
+        required: false,
         trim: true,
         index: true,
         lowercase: true
@@ -31,14 +37,14 @@ const userSchema = new Schema({
     branch: {
         type: String,
         trim: true,
-        required: true,
+        required: false,
         index: true,
         lowercase: true
     },
     college: {
         type: String,
         trim: true,
-        required: true,
+        required: false,
         lowercase: true,
         index: true
     },
@@ -46,12 +52,17 @@ const userSchema = new Schema({
         type: Number,
         min: 1,
         max: 8,
-        required: true
+        required: false
     },
     role: {
         type: String,
-        enum: ['student', 'teacher', 'admin'], // Allowed values
+        enum: ['student', 'teacher'], // Only student and teacher roles
         default: 'student' // Default value
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
+        index: true
     },
 },{
     timestamps: true

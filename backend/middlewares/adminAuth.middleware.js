@@ -4,7 +4,8 @@ import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
 import BlacklistTokenModel from '../models/blacklistToken.model.js';
 
-export const verifyJWT = asyncHandler(async (req,_,next)=>{
+// Middleware that only allows admin users
+export const verifyAdmin = asyncHandler(async (req,_,next)=>{
     try{
         const token = req.cookies?.token || req.header("Authorization")?.replace("Bearer ","");
         if(!token){
@@ -38,8 +39,10 @@ export const verifyJWT = asyncHandler(async (req,_,next)=>{
         if(!user){
             throw new ApiError(401,"Invalid access token")
         }
-        if(user.role === "student"){
-            throw new ApiError(403,"Access denied")
+
+        // Check if user is admin (only isAdmin flag, role can be teacher)
+        if(!user.isAdmin){
+            throw new ApiError(403,"Access denied. Admin privileges required.")
         }
 
         req.user = user;
@@ -51,3 +54,4 @@ export const verifyJWT = asyncHandler(async (req,_,next)=>{
         throw new ApiError(401, err?.message || "Invalid access token");
     }
 })
+
