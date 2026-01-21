@@ -30,6 +30,7 @@ export default function AddModal({ addForm, setAddForm, handleSubmit, handleCanc
               type="text"
               name="teacherName"
               value={addForm.teacherName}
+              disabled
               onChange={handleChange}
               required
               className="w-full px-3 py-1.5 rounded-xl bg-[#1a1a1a] border border-gray-600 text-white"

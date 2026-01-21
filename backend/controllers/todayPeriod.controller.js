@@ -34,6 +34,11 @@ const updatePeriod = asyncHandler(async(req,res)=>{
     if(!isOwner){
         throw new ApiError(403, "You can only edit your own periods");
     }
+
+    // IMPORTANT: Teachers can ONLY edit TodayPeriod, NOT PastPeriod or OriginalPeriod
+    if(!period._id){
+        throw new ApiError(400, "Invalid period data");
+    }
     const overlappingPeriod = await TodayPeriod.findOne({
         _id: { $ne: id }, // Exclude the current period being updated
         sem,         // Must be the same semester

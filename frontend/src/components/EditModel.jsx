@@ -35,6 +35,7 @@ export default function EditModal({ editForm, setEditForm, handleSave, handleCan
           placeholder="Teacher Name"
           className="w-full mt-2 p-3 rounded-lg bg-white/20 text-white border border-transparent focus:border-blue-500 transition-all duration-300 focus:ring-2 focus:ring-blue-500"
           value={editForm.teacherName}
+          disabled
           onChange={(e) => setEditForm({ ...editForm, teacherName: e.target.value })}
         />
         <input

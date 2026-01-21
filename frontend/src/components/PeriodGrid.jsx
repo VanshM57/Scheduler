@@ -4,9 +4,8 @@ import Card from "./ui/Card";
 import { useContext } from "react";
 import { UserDataContext } from "../context/UserContext";
 
-export default function PeriodGrid({ schedule, handleEdit, handleCancel }) {
+export default function PeriodGrid({ schedule, handleEdit, handleCancel, canEdit, canCancel, dateType }) {
   const { user } = useContext(UserDataContext);
-  const canEdit = user?.role === "teacher";
   
   if(schedule.length === 0) {
     return (
@@ -39,18 +38,24 @@ export default function PeriodGrid({ schedule, handleEdit, handleCancel }) {
               <h3 className="text-lg font-bold text-white capitalize flex-1 line-clamp-2">
                 {period.periodName}
               </h3>
-              {canEdit && (
+              {(canEdit || canCancel) && (
                 <div className="flex gap-2 ml-2 flex-shrink-0">
-                  <Edit 
-                    className="cursor-pointer text-blue-400 hover:text-blue-300 transition-colors" 
-                    size={18}
-                    onClick={() => handleEdit(period)} 
-                  />
-                  <XCircle 
-                    className="cursor-pointer text-red-400 hover:text-red-300 transition-colors" 
-                    size={18}
-                    onClick={() => handleCancel(period._id)} 
-                  />
+                  {canEdit && (
+                    <Edit 
+                      className="cursor-pointer text-blue-400 hover:text-blue-300 transition-colors" 
+                      size={18}
+                      onClick={() => handleEdit(period)}
+                      title={dateType === 'today' ? 'Edit today period' : dateType === 'future' ? 'Edit master schedule (admin)' : 'Cannot edit past periods'}
+                    />
+                  )}
+                  {canCancel && (
+                    <XCircle 
+                      className="cursor-pointer text-red-400 hover:text-red-300 transition-colors" 
+                      size={18}
+                      onClick={() => handleCancel(period._id)}
+                      title="Cancel today period"
+                    />
+                  )}
                 </div>
               )}
             </div>

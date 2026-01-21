@@ -51,6 +51,43 @@ export default function Home() {
   const { periods, setPeriods } = useContext(Periodcontext);
   const isTeacher = user?.role === 'teacher';
   const isStudent = user?.role === 'student';
+  const isAdmin = user?.isAdmin;
+
+  // Determine the type of date selected (today, past, or future)
+  const getDateType = (selectedDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+
+    if (selected.getTime() === today.getTime()) {
+      return 'today';
+    } else if (selected < today) {
+      return 'past';
+    } else {
+      return 'future';
+    }
+  };
+
+  const dateType = getDateType(selectedDate);
+
+  // Check if period can be edited based on date type and user role
+  const canEditPeriod = (period) => {
+    // Today periods: only teachers can edit their own
+    if (dateType === 'today' && isTeacher) {
+      return (period.teacher?.toString() === user._id) || 
+             (period.teacherName?.toLowerCase() === user.name.toLowerCase());
+    }
+    // Past periods: no one can edit
+    if (dateType === 'past') {
+      return false;
+    }
+    // Future periods: only admin can edit (originalPeriod)
+    if (dateType === 'future' && isAdmin) {
+      return true;
+    }
+    return false;
+  };
 
   useEffect(() => {
     if(user){
@@ -146,6 +183,28 @@ export default function Home() {
   };
 
   const handleCancel = async (id) => {
+    // Only allow cancellation for today's periods by teachers
+    if (dateType !== 'today') {
+      toast.error("Can only cancel today's periods");
+      return;
+    }
+
+    if (!isTeacher) {
+      toast.error("Only teachers can cancel periods");
+      return;
+    }
+
+    // Check if teacher owns this period
+    const period = periods.find(p => p._id === id);
+    if (period) {
+      const isOwner = (period.teacher?.toString() === user._id) || 
+                      (period.teacherName?.toLowerCase() === user.name.toLowerCase());
+      if (!isOwner) {
+        toast.error("You can only cancel your own periods");
+        return;
+      }
+    }
+
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
@@ -172,6 +231,20 @@ export default function Home() {
   };
 
   const handleEdit = (period) => {
+    // Check if user is allowed to edit this period
+    if (!canEditPeriod(period)) {
+      if (dateType === 'past') {
+        toast.error("Cannot edit past periods");
+      } else if (dateType === 'future' && !isAdmin) {
+        toast.error("Only admins can edit future periods");
+      } else if (dateType === 'today' && !isTeacher) {
+        toast.error("Only teachers can edit today's periods");
+      } else {
+        toast.error("You can only edit your own periods");
+      }
+      return;
+    }
+
     setEditPeriod(period._id);
     setEditForm({
       periodName: period.periodName,
@@ -179,7 +252,8 @@ export default function Home() {
       endTime: period.endTime,
       teacherName: period.teacherName,
       roomNo: period.roomNo,
-      batch: period.batch || ""
+      batch: period.batch || "",
+      day: period.day || '' // For future periods (originalPeriod has day)
     });
   };
 
@@ -187,40 +261,76 @@ export default function Home() {
     try {
       const token = localStorage.getItem("token");
       const period = periods.find(p => p._id === editPeriod);
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/todayPeriod/updatePeriod`,
-        {
-          id: editPeriod,
-          ...editForm,
-          updatedBy: `Updated by: ${user.name}`,
-          sem: period?.sem || selectedSem,
-          branch: period?.branch || selectedBranch,
-          isClassCancelled: false
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
+      
+      // Route to different endpoints based on date type
+      if (dateType === 'today') {
+        // Today periods - use todayPeriod endpoint (teachers only)
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/todayPeriod/updatePeriod`,
+          {
+            id: editPeriod,
+            ...editForm,
+            updatedBy: `Updated by: ${user.name}`,
+            sem: period?.sem || selectedSem,
+            branch: period?.branch || selectedBranch,
+            isClassCancelled: false
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success("Class updated successfully");
-        setPeriods((prev) =>
-          prev.map((p) =>
-            p._id === editPeriod
-              ? { ...p, ...editForm, isClassCancelled: false, updatedBy: `Updated by: ${user.name}` }
-              : p
-          )
         );
+
+        if (response.status === 200) {
+          toast.success("Class updated successfully");
+          setPeriods((prev) =>
+            prev.map((p) =>
+              p._id === editPeriod
+                ? { ...p, ...editForm, isClassCancelled: false, updatedBy: `Updated by: ${user.name}` }
+                : p
+            )
+          );
+        }
+      } else if (dateType === 'future' && isAdmin) {
+        // Future periods - use admin endpoint (admin only for originalPeriod)
+        const response = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/admin/periods/update`,
+          {
+            id: editPeriod,
+            periodName: editForm.periodName,
+            teacherName: editForm.teacherName,
+            roomNo: editForm.roomNo,
+            startTime: editForm.startTime,
+            endTime: editForm.endTime,
+            sem: period?.sem || selectedSem,
+            branch: period?.branch || selectedBranch,
+            batch: editForm.batch,
+            day: editForm.day || period?.day
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success("Period updated successfully");
+          fetchPeriods(); // Refresh to get updated data
+        }
+      } else {
+        toast.error("You don't have permission to edit this period");
       }
     } catch (err) {
       if(err.response?.status === 400){
         toast.error(err.response?.data?.message || "Periods are overlapping, So please change time of period.");
       } else if(err.response?.status === 403){
-        toast.error("You can only edit your own periods");
+        toast.error("You don't have permission to edit this period");
+      } else if(err.response?.status === 404){
+        toast.error("Period not found");
       } else {
-        toast.error("Something went wrong, try again");
+        toast.error(err.response?.data?.message || "Something went wrong, try again");
       }
     } 
     setEditPeriod(null);
@@ -617,7 +727,14 @@ export default function Home() {
               <p className="text-gray-400">No periods scheduled for this date</p>
             </div>
           ) : (
-            <PeriodGrid schedule={periods} handleEdit={handleEdit} handleCancel={handleCancel} />
+            <PeriodGrid 
+              schedule={periods} 
+              handleEdit={handleEdit} 
+              handleCancel={handleCancel}
+              canEdit={dateType === 'today' && isTeacher || dateType === 'future' && isAdmin}
+              canCancel={dateType === 'today' && isTeacher}
+              dateType={dateType}
+            />
           )}
         </div>
 
